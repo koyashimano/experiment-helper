@@ -1,0 +1,71 @@
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+
+[project]
+authors = [
+  {email = "you@example.com", name = "Your Name"}
+]
+dependencies = [
+  "matplotlib (>=3.10.1,<4.0.0)",
+  "numpy (>=2.2.4,<3.0.0)",
+  "pandas (>=2.2.3,<3.0.0)"
+]
+description = ""
+name = "experiment_helper"
+readme = "README.md"
+requires-python = ">=3.13"
+version = "0.1.0"
+
+[tool.mypy]
+check_untyped_defs = true
+disallow_incomplete_defs = true
+disallow_untyped_decorators = true
+disallow_untyped_defs = true
+ignore_missing_imports = true
+no_implicit_optional = true
+python_version = "3.13"
+strict_optional = true
+warn_no_return = true
+warn_redundant_casts = true
+warn_return_any = true
+warn_unreachable = true
+warn_unused_configs = true
+warn_unused_ignores = true
+
+[tool.poetry.dependencies]
+python = "^3.13"
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.1.1"
+flake8 = "^7.0.0"
+isort = "^5.13.2"
+mypy = "^1.8.0"
+pre-commit = "^4.2.0"
+ruff = "^0.11.0"
+toml-sort = "^0.22.1"
+
+[tool.pylint.MASTER]
+disable = [
+  "C0111", # missing-docstring
+  "C0330", # bad-continuation
+  "R0903", # too-few-public-methods
+  "R0913", # too-many-arguments
+  "W0603", # global-statement
+  "W0621", # redefined-outer-name
+  "W0703" # broad-except
+]
+
+[tool.ruff]
+fix = true
+line-length = 100
+target-version = "py313"
+
+[tool.ruff.lint]
+ignore = [
+  "B008" # function-call-in-default-argument
+]
+select = ["B", "E", "F", "I", "N", "RUF", "UP", "W"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app"]
