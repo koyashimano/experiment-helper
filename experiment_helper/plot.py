@@ -151,7 +151,7 @@ class Plot:
             x_min = all_data[self.x_axis].min()
             x_max = all_data[self.x_axis].max()
             x_margin = (x_max - x_min) * 0.03
-            xlim = (x_min - x_margin, x_max + x_margin)
+            xlim = (min(x_min - x_margin, 0), x_max + x_margin)
             plt.xlim(xlim)
 
         if self.ylim:
@@ -160,7 +160,7 @@ class Plot:
             y_min = all_data[self.y_axis].min()
             y_max = all_data[self.y_axis].max()
             y_margin = (y_max - y_min) * 0.05
-            ylim = (y_min - y_margin, y_max + y_margin)
+            ylim = (min(y_min - y_margin, 0), y_max + y_margin)
             plt.ylim(ylim)
 
     def print_polyfit_data(self) -> None:
