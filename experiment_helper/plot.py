@@ -6,7 +6,12 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 
-from .types import PlotData, PlotDataWithDataFrame, PolyfitData
+from .types import (
+    PlotCurve,
+    PlotData,
+    PlotDataWithDataFrame,
+    PolyfitData,
+)
 
 DEFAULT_COLORS = [
     "blue",
@@ -36,6 +41,7 @@ class Plot:
         self,
         *,
         data: list[PlotData],
+        curves: list[PlotCurve] | None = None,
         x_axis: str,
         y_axis: str,
         fig_file_path: str | None = None,
@@ -62,6 +68,8 @@ class Plot:
                 df = pd.concat([df, df.iloc[[0]]])
             self.data.append(PlotDataWithDataFrame(df=df, **d))
 
+        self.curves = curves or []
+
         self.x_axis = x_axis
         self.y_axis = y_axis
         self.xlim = xlim
@@ -87,8 +95,14 @@ class Plot:
     def plot(self) -> None:
         self._set_lim()
 
-        for i, data in enumerate(self.data):
-            self._plot_data(data, i)
+        index = 0
+        for data in self.data:
+            self._plot_data(data, index)
+            index += 1
+
+        for curve in self.curves:
+            self._plot_curve(curve, index)
+            index += 1
 
         plt.grid(True)
         if any(d.get("label") is not None for d in self.data):
@@ -120,6 +134,33 @@ class Plot:
                 df[self.x_axis],
                 df[self.y_axis],
                 "o",
+                markersize=5,
+                label=data.get("label"),
+                color=data.get("color", DEFAULT_COLORS[index % len(DEFAULT_COLORS)]),
+            )
+
+    def _plot_curve(self, data: PlotCurve, index: int) -> None:
+        if self.polar:
+            angle = np.linspace(0, 2 * np.pi, 100)
+            vfunc = np.vectorize(data["func"])
+            radius = vfunc(angle)
+            plt.polar(
+                angle,
+                radius,
+                "-",
+                markersize=5,
+                label=data.get("label"),
+                color=data.get("color", DEFAULT_COLORS[index % len(DEFAULT_COLORS)]),
+            )
+        else:
+            xlim = plt.xlim()
+            x = np.linspace(xlim[0], xlim[1], 100)
+            vfunc = np.vectorize(data["func"])
+            y = vfunc(x)
+            plt.plot(
+                x,
+                y,
+                "-",
                 markersize=5,
                 label=data.get("label"),
                 color=data.get("color", DEFAULT_COLORS[index % len(DEFAULT_COLORS)]),

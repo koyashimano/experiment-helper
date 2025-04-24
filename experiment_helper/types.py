@@ -1,14 +1,22 @@
+from collections.abc import Callable
 from typing import NotRequired, TypedDict
 
 import pandas as pd
 
 
-class PlotData(TypedDict):
-    file_path: str
+class PlotBase(TypedDict):
     label: NotRequired[str]
+    color: NotRequired[str]
+
+
+class PlotData(PlotBase):
+    file_path: str
     range: NotRequired[tuple[float, float]]
     polyfit_ranges: NotRequired[list[tuple[float, float]] | str]
-    color: NotRequired[str]
+
+
+class PlotCurve(PlotBase):
+    func: Callable[[float], float]
 
 
 class PlotDataWithDataFrame(PlotData):
