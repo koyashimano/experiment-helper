@@ -45,7 +45,11 @@ class Plot:
         ylim: tuple[float, float] | None = None,
         semilog: bool = False,
         transform_y: Callable[[float], float] | None = None,
+        polar: bool = False,
+        connect_first_and_last: bool | None = None,
     ):
+        if connect_first_and_last is None:
+            connect_first_and_last = polar
         self.data: list[PlotDataWithDataFrame] = []
         for d in data:
             assert d["file_path"].endswith(".csv")
@@ -54,12 +58,15 @@ class Plot:
                 df = df[(df[x_axis] >= r[0]) & (df[x_axis] <= r[1])]
             if transform_y:
                 df[y_axis] = df[y_axis].apply(transform_y)
+            if connect_first_and_last:
+                df = pd.concat([df, df.iloc[[0]]])
             self.data.append(PlotDataWithDataFrame(df=df, **d))
 
         self.x_axis = x_axis
         self.y_axis = y_axis
         self.xlim = xlim
         self.ylim = ylim
+        self.polar = polar
 
         self.polyfit_data: dict[str, PolyfitData] = {}
 
@@ -68,9 +75,12 @@ class Plot:
             fig_file_path if fig_file_path else data[0]["file_path"].replace(".csv", ".png")
         )
 
-        plt.figure(figsize=(10, 6))
-        plt.xlabel(x_label if x_label else x_axis)
-        plt.ylabel(y_label if y_label else y_axis)
+        if self.polar:
+            plt.figure(figsize=(10, 10))
+        else:
+            plt.figure(figsize=(10, 6))
+            plt.xlabel(x_label if x_label else x_axis)
+            plt.ylabel(y_label if y_label else y_axis)
 
         self.semilog = semilog
 
@@ -95,14 +105,25 @@ class Plot:
         df = data["df"]
         if polyfit_ranges := data.get("polyfit_ranges"):
             self._polyfit(df, polyfit_ranges)
-        plt.plot(
-            df[self.x_axis],
-            df[self.y_axis],
-            "o",
-            markersize=5,
-            label=data.get("label"),
-            color=data.get("color", DEFAULT_COLORS[index % len(DEFAULT_COLORS)]),
-        )
+
+        if self.polar:
+            plt.polar(
+                np.deg2rad(df[self.x_axis]),
+                df[self.y_axis],
+                "o-",
+                markersize=5,
+                label=data.get("label"),
+                color=data.get("color", DEFAULT_COLORS[index % len(DEFAULT_COLORS)]),
+            )
+        else:
+            plt.plot(
+                df[self.x_axis],
+                df[self.y_axis],
+                "o",
+                markersize=5,
+                label=data.get("label"),
+                color=data.get("color", DEFAULT_COLORS[index % len(DEFAULT_COLORS)]),
+            )
 
     def _polyfit(self, df: pd.DataFrame, polyfit_ranges: list[tuple[float, float]] | str) -> None:
         polyfit_df = df.copy()
@@ -143,6 +164,9 @@ class Plot:
             )
 
     def _set_lim(self) -> None:
+        if self.polar:
+            return
+
         all_data = pd.concat([d["df"] for d in self.data])
 
         if self.xlim:
