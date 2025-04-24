@@ -51,6 +51,7 @@ class Plot:
         ylim: tuple[float, float] | None = None,
         semilog: bool = False,
         transform_y: Callable[[float], float] | None = None,
+        transform_df: Callable[[pd.DataFrame], pd.DataFrame] | None = None,
         polar: bool = False,
         connect_first_and_last: bool | None = None,
     ):
@@ -60,6 +61,8 @@ class Plot:
         for d in data:
             assert d["file_path"].endswith(".csv")
             df = pd.read_csv(d["file_path"])
+            if transform_df:
+                df = transform_df(df)
             if r := d.get("range"):
                 df = df[(df[x_axis] >= r[0]) & (df[x_axis] <= r[1])]
             if transform_y:
