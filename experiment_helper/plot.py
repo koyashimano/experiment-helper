@@ -50,6 +50,7 @@ class Plot:
         xlim: tuple[float, float] | None = None,
         ylim: tuple[float, float] | None = None,
         semilog: bool = False,
+        transform_x: Callable[[float], float] | None = None,
         transform_y: Callable[[float], float] | None = None,
         transform_df: Callable[[pd.DataFrame], pd.DataFrame] | None = None,
         polar: bool = False,
@@ -65,6 +66,8 @@ class Plot:
                 df = transform_df(df)
             if r := d.get("range"):
                 df = df[(df[x_axis] >= r[0]) & (df[x_axis] <= r[1])]
+            if transform_x:
+                df[x_axis] = df[x_axis].apply(transform_x)
             if transform_y:
                 df[y_axis] = df[y_axis].apply(transform_y)
             if connect_first_and_last:
