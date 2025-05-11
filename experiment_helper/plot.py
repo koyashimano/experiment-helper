@@ -213,6 +213,10 @@ class Plot:
     def _set_lim(self) -> None:
         if self.polar:
             return
+        if self.xlim and self.ylim:
+            plt.xlim(self.xlim)
+            plt.ylim(self.ylim)
+            return
 
         all_data = pd.concat([d["df"] for d in self.data])
 
