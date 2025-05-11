@@ -147,7 +147,7 @@ class Plot:
 
     def _plot_curve(self, data: PlotCurve, index: int) -> None:
         if self.polar:
-            angle = np.linspace(0, 2 * np.pi, 100)
+            angle = np.linspace(0, 2 * np.pi, 1000)
             vfunc = np.vectorize(data["func"])
             radius = vfunc(angle)
             plt.polar(
@@ -160,7 +160,7 @@ class Plot:
             )
         else:
             xlim = plt.xlim()
-            x = np.linspace(xlim[0], xlim[1], 100)
+            x = np.linspace(xlim[0], xlim[1], 1000)
             vfunc = np.vectorize(data["func"])
             y = vfunc(x)
             plt.plot(
